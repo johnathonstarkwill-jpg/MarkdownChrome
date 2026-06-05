@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Markdown Chrome</title>
+    <link rel="stylesheet" href="./viewer.css">
+  </head>
+  <body>
+    <header class="toolbar">
+      <div class="file-meta">
+        <strong id="fileName">Markdown Chrome</strong>
+        <span id="status">Ready</span>
+      </div>
+      <div class="actions">
+        <button id="openButton" type="button" title="Open Markdown file">Open</button>
+        <button id="openFolderButton" type="button" title="Open folder with Markdown files">Open Folder</button>
+        <button id="toggleFilesButton" type="button" title="Show or hide file tree">Files</button>
+        <button id="saveButton" type="button" title="Save to writable file">Save</button>
+        <button id="exportHtmlButton" type="button" title="Export rendered Markdown as HTML">HTML</button>
+        <button id="exportPdfButton" type="button" title="Export rendered Markdown as PDF through print dialog">PDF</button>
+        <button id="themeToggleButton" type="button" title="Switch light or dark theme">Dark</button>
+        <label class="autosave-toggle">
+          <input id="autosaveToggle" type="checkbox" checked>
+          Auto-save
+        </label>
+        <div class="mode-group" aria-label="View mode">
+          <button class="mode-button is-active" type="button" data-mode="split">Split</button>
+          <button class="mode-button" type="button" data-mode="preview">Preview</button>
+          <button class="mode-button" type="button" data-mode="editor">Editor</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="appLayout" class="app-layout sidebar-collapsed">
+      <button id="revealSidebarButton" class="reveal-sidebar-button" type="button" title="Show file tree">›</button>
+      <aside id="sidebar" class="sidebar" aria-label="Markdown folder tree">
+        <div class="sidebar-header">
+          <strong id="folderName">Folder</strong>
+          <button id="toggleSidebarButton" class="sidebar-arrow-button" type="button" title="Hide file tree">‹</button>
+        </div>
+        <div id="fileTree" class="file-tree" role="tree"></div>
+        <div id="sidebarResizeHandle" class="sidebar-resize-handle" role="separator" aria-orientation="vertical" title="Resize file tree"></div>
+      </aside>
+
+      <section class="document-area">
+        <div class="markdown-toolbar" aria-label="Markdown formatting tools">
+          <button type="button" data-markdown-action="heading2" title="Heading">H2</button>
+          <button type="button" data-markdown-action="bold" title="Bold">B</button>
+          <button type="button" data-markdown-action="italic" title="Italic">I</button>
+          <button type="button" data-markdown-action="link" title="Link">Link</button>
+          <button type="button" data-markdown-action="quote" title="Quote">Quote</button>
+          <button type="button" data-markdown-action="bulletedList" title="Bulleted list">List</button>
+          <button type="button" data-markdown-action="numberedList" title="Numbered list">1.</button>
+          <button type="button" data-markdown-action="codeBlock" title="Code block">Code</button>
+          <button type="button" data-markdown-action="table" title="Table">Table</button>
+          <button type="button" data-markdown-action="mermaid" title="Mermaid diagram">Mermaid</button>
+        </div>
+
+        <div id="workspace" class="workspace mode-split">
+          <section class="pane editor-pane" aria-label="Markdown editor">
+            <textarea id="editor" spellcheck="false" autocomplete="off"></textarea>
+          </section>
+          <section class="pane preview-pane" aria-label="Rendered preview">
+            <article id="preview" class="markdown-body"></article>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="../../vendor/marked.min.js"></script>
+    <script src="../../vendor/mermaid.min.js"></script>
+    <script type="module" src="./viewer.js"></script>
+  </body>
+</html>

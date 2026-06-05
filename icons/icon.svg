@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Markdown Chrome icon">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="12" x2="110" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#102038"/>
+      <stop offset="0.58" stop-color="#166b62"/>
+      <stop offset="1" stop-color="#48c2a7"/>
+    </linearGradient>
+    <linearGradient id="page" x1="36" y1="20" x2="92" y2="105" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dff9f4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="26" fill="url(#bg)"/>
+  <path d="M38 20h44l18 18v70a8 8 0 0 1-8 8H38a8 8 0 0 1-8-8V28a8 8 0 0 1 8-8Z" fill="url(#page)"/>
+  <path d="M82 20v20h20" fill="#b7eee4"/>
+
+  <path d="M43 51h10l8 14 8-14h10v30h-9V64l-7 12h-5l-7-12v17h-8V51Z" fill="#102038"/>
+
+  <rect x="42" y="89" width="12" height="12" rx="3" fill="#22a58e"/>
+  <path d="m45 95 3 3 6-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M62 95h22" stroke="#102038" stroke-width="5" stroke-linecap="round"/>
+
+  <circle cx="44" cy="37" r="4" fill="#22a58e"/>
+  <circle cx="58" cy="37" r="4" fill="#22a58e"/>
+  <circle cx="72" cy="37" r="4" fill="#22a58e"/>
+  <path d="M48 37h10m4 0h10" stroke="#22a58e" stroke-width="3" stroke-linecap="round"/>
+</svg>
