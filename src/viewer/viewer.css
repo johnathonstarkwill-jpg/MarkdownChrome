@@ -418,6 +418,24 @@ button.is-active {
   cursor: pointer;
 }
 
+.source-citation {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 3px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--active-bg);
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .mermaid-error {
   border-left: 3px solid #b42318;
   padding-left: 12px;

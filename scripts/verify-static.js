@@ -7,12 +7,16 @@ const requiredFiles = [
   'src/content/file-detector.js',
   'src/shared/file-url.js',
   'src/viewer/export.js',
+  'src/viewer/citations.js',
   'src/viewer/file-access.js',
   'src/viewer/markdown-actions.js',
   'src/viewer/viewer.html',
   'src/viewer/viewer.css',
   'src/viewer/viewer.js',
   'vendor/marked.min.js',
+  'vendor/katex.min.css',
+  'vendor/katex.min.js',
+  'vendor/auto-render.min.js',
   'vendor/mermaid.min.js',
 ];
 
@@ -31,6 +35,9 @@ assert.equal(manifest.host_permissions[0], 'file:///*');
 const html = await readFile('src/viewer/viewer.html', 'utf8');
 const css = await readFile('src/viewer/viewer.css', 'utf8');
 assert.match(html, /vendor\/marked\.min\.js/);
+assert.match(html, /vendor\/katex\.min\.css/);
+assert.match(html, /vendor\/katex\.min\.js/);
+assert.match(html, /vendor\/auto-render\.min\.js/);
 assert.match(html, /vendor\/mermaid\.min\.js/);
 assert.match(html, /type="module" src="\.\/viewer\.js"/);
 assert.match(html, /openFolderButton/);
@@ -51,6 +58,8 @@ assert.match(viewerJs, /showDirectoryPicker/);
 assert.match(viewerJs, /writeTextToHandle/);
 assert.match(viewerJs, /scheduleAutoSave/);
 assert.match(viewerJs, /mermaid\.run/);
+assert.match(viewerJs, /renderMathInElement/);
+assert.match(viewerJs, /renderCitationMarkers/);
 assert.match(viewerJs, /downloadHtmlDocument/);
 assert.match(viewerJs, /printHtmlDocument/);
 assert.match(viewerJs, /setTheme/);

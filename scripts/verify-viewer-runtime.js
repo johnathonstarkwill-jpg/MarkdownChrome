@@ -62,6 +62,7 @@ async function verifyRenderedMermaid(url, expectedText) {
   await verifyThemeToggle(page);
   await verifyLongFileTreeNamesDoNotOverlap(page);
   await verifyPreviewTaskCheckboxUpdatesMarkdown(page);
+  await verifyCitationsAndLatexRender(page);
 
   await page.close();
 }
@@ -133,4 +134,35 @@ async function verifyPreviewTaskCheckboxUpdatesMarkdown(page) {
   await page.waitForFunction(() => document.querySelector('#editor').value.startsWith('- [x] Rendered task'));
 
   assert.equal(await editor.inputValue(), '- [x] Rendered task\n- [x] Finished task');
+}
+
+async function verifyCitationsAndLatexRender(page) {
+  const editor = page.locator('#editor');
+
+  await editor.fill([
+    '# Research Notes',
+    '',
+    'Reference citeturn7view2turn13view0 should not show raw tokens.',
+    '',
+    'Inline math $E = mc^2$ and display math:',
+    '',
+    '$$',
+    '\\\\int_0^1 x^2 dx = \\\\frac{1}{3}',
+    '$$',
+    '',
+    '```text',
+    'Do not transform code citeturn1view0 or $x$.',
+    '```',
+  ].join('\n'));
+
+  await page.waitForSelector('.source-citation');
+  await page.waitForSelector('.katex');
+
+  const bodyText = await page.locator('article.markdown-body').innerText();
+  assert.match(bodyText, /Research Notes/);
+  assert.doesNotMatch(bodyText, /citeturn7view2/);
+
+  const codeText = await page.locator('article.markdown-body pre code').innerText();
+  assert.match(codeText, /citeturn1view0/);
+  assert.match(codeText, /\$x\$/);
 }

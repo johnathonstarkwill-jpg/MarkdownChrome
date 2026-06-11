@@ -9,6 +9,8 @@ Markdown Chrome is a Chrome Manifest V3 extension for opening, previewing, editi
 - Use split view, fullscreen preview, or fullscreen editor mode.
 - Edit Markdown with a beginner-friendly formatting toolbar.
 - Render GitHub Flavored Markdown with task lists and tables.
+- Render inline and display LaTeX formulas with KaTeX.
+- Render imported citation markers as readable citation badges instead of raw private tokens.
 - Click task-list checkboxes directly in the rendered preview; the source Markdown updates from `- [ ]` to `- [x]` or back.
 - Render Mermaid diagrams from fenced code blocks.
 - Save and auto-save through Chrome's File System Access API after the user grants write access.
@@ -66,6 +68,20 @@ graph TD
 ```
 
 Use the same fenced block syntax in your own files: start a code block with three backticks followed by `mermaid`.
+
+## LaTeX Formulas
+
+Markdown Chrome renders inline and display math with KaTeX:
+
+```markdown
+Inline math: $E = mc^2$
+
+$$
+\int_0^1 x^2 dx = \frac{1}{3}
+$$
+```
+
+Formula text inside code blocks is left unchanged.
 
 ## Saving Local Files
 

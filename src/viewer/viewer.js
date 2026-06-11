@@ -8,6 +8,7 @@ import {
 } from './file-access.js';
 import { buildExportHtml, defaultExportName, downloadHtmlDocument, printHtmlDocument } from './export.js';
 import { applyMarkdownAction, MARKDOWN_ACTIONS } from './markdown-actions.js';
+import { renderCitationMarkers } from './citations.js';
 import { toggleMarkdownTaskAtIndex } from './task-list.js';
 
 const editor = document.querySelector('#editor');
@@ -329,8 +330,26 @@ function renderNow() {
 
   preview.innerHTML = window.marked.parse(editor.value);
   prepareTaskListInputs();
+  renderCitationMarkers(preview);
+  renderLatexMath();
   prepareMermaidBlocks();
   renderMermaidBlocks();
+}
+
+function renderLatexMath() {
+  if (!window.renderMathInElement) {
+    return;
+  }
+
+  window.renderMathInElement(preview, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false },
+      { left: '\\[', right: '\\]', display: true },
+    ],
+    throwOnError: false,
+  });
 }
 
 function prepareTaskListInputs() {
