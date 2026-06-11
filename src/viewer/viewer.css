@@ -429,6 +429,36 @@ button.is-active {
   font-size: 11px;
   font-weight: 700;
   line-height: 1.45;
+  text-decoration: none;
+}
+
+.source-citation:hover {
+  text-decoration: underline;
+}
+
+.citation-list {
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.citation-list h2 {
+  font-size: 18px;
+}
+
+.citation-list li {
+  margin: 6px 0;
+}
+
+.citation-backlink {
+  color: var(--accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.citation-backlink:hover {
+  text-decoration: underline;
 }
 
 .katex-display {

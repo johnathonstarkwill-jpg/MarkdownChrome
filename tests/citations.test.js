@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { splitCitationMarkers } from '../src/viewer/citations.js';
+import { citationEntriesFromMarker, splitCitationMarkers } from '../src/viewer/citations.js';
 
 test('splits ChatGPT-style citation markers out of normal text', () => {
   assert.deepEqual(
@@ -17,5 +17,12 @@ test('splits ChatGPT-style citation markers out of normal text', () => {
 test('returns a single text part when no citation marker exists', () => {
   assert.deepEqual(splitCitationMarkers('No citations here.'), [
     { type: 'text', value: 'No citations here.' },
+  ]);
+});
+
+test('extracts linkable citation entries from a marker', () => {
+  assert.deepEqual(citationEntriesFromMarker('citeturn7view2turn13view0'), [
+    { id: 'turn7view2', label: 'turn7view2' },
+    { id: 'turn13view0', label: 'turn13view0' },
   ]);
 });

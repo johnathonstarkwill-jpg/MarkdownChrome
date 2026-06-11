@@ -26,6 +26,7 @@ export function splitCitationMarkers(text) {
 }
 
 export function renderCitationMarkers(root) {
+  const citationGroups = [];
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       if (!citationPattern.test(node.nodeValue)) {
@@ -57,15 +58,34 @@ export function renderCitationMarkers(root) {
         return;
       }
 
-      const citation = document.createElement('sup');
+      const groupIndex = citationGroups.length + 1;
+      const citationId = `citation-${groupIndex}`;
+      const referenceId = `citation-ref-${groupIndex}`;
+      const entries = citationEntriesFromMarker(part.value);
+      citationGroups.push({ id: citationId, referenceId, entries });
+
+      const citation = document.createElement('a');
+      citation.href = `#${referenceId}`;
       citation.className = 'source-citation';
       citation.title = citationTitle(part.value);
+      citation.id = citationId;
       citation.textContent = '[citation]';
       fragment.append(citation);
     });
 
     textNode.replaceWith(fragment);
   });
+
+  appendCitationList(root, citationGroups);
+}
+
+export function citationEntriesFromMarker(marker) {
+  return marker
+    .replace(/^\uE200cite\uE202?/, '')
+    .replace(/\uE201$/, '')
+    .split('\uE202')
+    .filter(Boolean)
+    .map((id) => ({ id, label: id }));
 }
 
 function hasSkippedAncestor(node) {
@@ -80,10 +100,41 @@ function hasSkippedAncestor(node) {
 }
 
 function citationTitle(marker) {
-  return marker
-    .replace(/^\uE200cite\uE202?/, '')
-    .replace(/\uE201$/, '')
-    .split('\uE202')
-    .filter(Boolean)
-    .join(', ');
+  return citationEntriesFromMarker(marker).map((entry) => entry.label).join(', ');
+}
+
+function appendCitationList(root, citationGroups) {
+  if (citationGroups.length === 0) {
+    return;
+  }
+
+  const section = document.createElement('section');
+  section.className = 'citation-list';
+  section.setAttribute('aria-label', 'Citations');
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Citations';
+  section.append(heading);
+
+  const list = document.createElement('ol');
+
+  citationGroups.forEach((group, index) => {
+    const item = document.createElement('li');
+    item.id = group.referenceId;
+
+    const backLink = document.createElement('a');
+    backLink.href = `#${group.id}`;
+    backLink.className = 'citation-backlink';
+    backLink.textContent = `Citation ${index + 1}`;
+
+    const labels = document.createElement('span');
+    labels.className = 'citation-source-list';
+    labels.textContent = group.entries.map((entry) => entry.label).join(', ');
+
+    item.append(backLink, document.createTextNode(': '), labels);
+    list.append(item);
+  });
+
+  section.append(list);
+  root.append(section);
 }

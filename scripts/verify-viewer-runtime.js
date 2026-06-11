@@ -156,11 +156,21 @@ async function verifyCitationsAndLatexRender(page) {
   ].join('\n'));
 
   await page.waitForSelector('.source-citation');
+  await page.waitForSelector('.citation-list li');
   await page.waitForSelector('.katex');
 
   const bodyText = await page.locator('article.markdown-body').innerText();
   assert.match(bodyText, /Research Notes/);
   assert.doesNotMatch(bodyText, /citeturn7view2/);
+
+  const citationHref = await page.locator('.source-citation').first().getAttribute('href');
+  assert.equal(citationHref, '#citation-ref-1');
+  await page.locator('.source-citation').first().click();
+  await page.waitForFunction(() => window.location.hash === '#citation-ref-1');
+
+  const citationText = await page.locator('#citation-ref-1').innerText();
+  assert.match(citationText, /turn7view2/);
+  assert.match(citationText, /turn13view0/);
 
   const codeText = await page.locator('article.markdown-body pre code').innerText();
   assert.match(codeText, /citeturn1view0/);
