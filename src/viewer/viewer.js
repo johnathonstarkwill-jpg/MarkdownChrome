@@ -36,9 +36,13 @@ const markdownToolbar = document.querySelector('.markdown-toolbar');
 const modeButtons = Array.from(document.querySelectorAll('.mode-button'));
 
 let fileHandle = null;
+let workspaceDirectoryHandle = null;
 let workspaceFiles = [];
 let activeWorkspacePath = '';
 let sourceUrl = getSourceUrlFromLocation(window.location.href);
+let sourceTextSnapshot = '';
+let lastFileSnapshot = null;
+let hasUnsavedChanges = false;
 let renderTimer = 0;
 let mermaidTimer = 0;
 let autoSaveTimer = 0;
@@ -84,15 +88,20 @@ function configureMermaid() {
   });
 }
 
+function confirmDiscardLocalChanges() {
+  return window.confirm('You have unsaved changes. Do you want to discard them?');
+}
+
 function bindEvents() {
   editor.addEventListener('input', () => {
+    hasUnsavedChanges = true;
     setStatus('Unsaved changes');
     window.clearTimeout(renderTimer);
     renderTimer = window.setTimeout(renderNow, 120);
     scheduleAutoSave();
   });
 
-  newButton.addEventListener('click', createNewFile);
+  newButton.addEventListener('click', newFile);
   openButton.addEventListener('click', openFileWithPicker);
   openFolderButton.addEventListener('click', openFolderWithPicker);
   toggleFilesButton.addEventListener('click', toggleSidebar);
@@ -115,7 +124,7 @@ function bindEvents() {
   window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'n') {
       event.preventDefault();
-      createNewFile();
+      newFile();
     }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
@@ -153,8 +162,12 @@ async function openFileWithPicker() {
     const file = await fileHandle.getFile();
     editor.value = await readFileHandleText(fileHandle);
     fileNameLabel.textContent = file.name;
+    workspaceDirectoryHandle = null;
     clearWorkspaceFiles();
     sourceUrl = '';
+    sourceTextSnapshot = '';
+    lastFileSnapshot = null;
+    hasUnsavedChanges = false;
     setStatus('Loaded with write access');
     renderNow();
   } catch (error) {
@@ -191,13 +204,46 @@ async function openFolderWithPicker() {
   }
 }
 
-function createNewFile() {
-  fileHandle = null;
-  clearWorkspaceFiles();
-  fileNameLabel.textContent = 'Untitled.md';
-  editor.value = '# Untitled\n\n';
-  renderNow();
-  setStatus('Created new file. Use Save to choose a file location.');
+async function newFile() {
+  if (!window.showSaveFilePicker) {
+    setStatus('This Chrome version does not support the File System Access API.');
+    return;
+  }
+
+  if (hasUnsavedChanges && !confirmDiscardLocalChanges()) {
+    return;
+  }
+
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'untitled.md',
+      types: [
+        {
+          description: 'Markdown file',
+          accept: { 'text/markdown': ['.md'] },
+        },
+      ],
+    });
+
+    await writeTextToHandle(handle, '');
+
+    fileHandle = handle;
+    const file = await handle.getFile();
+    fileNameLabel.textContent = file.name;
+    workspaceDirectoryHandle = null;
+    clearWorkspaceFiles();
+    sourceUrl = '';
+    sourceTextSnapshot = '';
+    lastFileSnapshot = null;
+    editor.value = '';
+    hasUnsavedChanges = false;
+    setStatus('New file created');
+    renderNow();
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      setStatus(`New file failed: ${error.message}`);
+    }
+  }
 }
 
 function refreshCurrentSource() {
