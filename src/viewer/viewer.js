@@ -235,10 +235,9 @@ async function newFile() {
     sourceUrl = '';
     sourceTextSnapshot = '';
     lastFileSnapshot = null;
-    editor.value = '';
     hasUnsavedChanges = false;
     setStatus('New file created');
-    renderNow();
+    replaceEditorContent('');
   } catch (error) {
     if (error.name !== 'AbortError') {
       setStatus(`New file failed: ${error.message}`);
@@ -387,6 +386,11 @@ function exportStyles() {
     th, td { border: 1px solid #d8dde6; padding: 6px 8px; }
     svg { max-width: 100%; height: auto; }
   `;
+}
+
+function replaceEditorContent(newContent) {
+  editor.value = newContent;
+  renderNow();
 }
 
 function renderNow() {
