@@ -245,8 +245,75 @@ async function newFile() {
   }
 }
 
-function refreshCurrentSource() {
-  setStatus('Refresh not yet implemented.');
+async function refreshCurrentSource() {
+  try {
+    if (hasUnsavedChanges && !confirmDiscardLocalChanges()) {
+      setStatus('Refresh canceled. Local edits kept.');
+      return;
+    }
+
+    if (workspaceDirectoryHandle) {
+      await refreshWorkspaceDirectory();
+      return;
+    }
+
+    if (fileHandle) {
+      await refreshFileHandleSource();
+      setStatus('Refreshed file');
+      return;
+    }
+
+    if (sourceUrl) {
+      await loadFromSourceUrl(sourceUrl);
+      setStatus('Refreshed from URL');
+      return;
+    }
+
+    setStatus('Nothing to refresh.');
+  } catch (error) {
+    setStatus(`Refresh failed: ${error.message}`);
+  }
+}
+
+async function refreshFileHandleSource() {
+  if (!fileHandle) {
+    return;
+  }
+
+  try {
+    const updatedText = await readFileHandleText(fileHandle);
+    editor.value = updatedText;
+    hasUnsavedChanges = false;
+    renderNow();
+  } catch (error) {
+    setStatus(`Failed to refresh file: ${error.message}`);
+  }
+}
+
+async function refreshWorkspaceDirectory() {
+  try {
+    workspaceFiles = await collectMarkdownFileHandles(workspaceDirectoryHandle);
+    renderFileTree();
+
+    if (workspaceFiles.length === 0) {
+      setStatus('No Markdown files found in workspace.');
+      return;
+    }
+
+    const currentFileStillExists = workspaceFiles.some(
+      (file) => file.path === activeWorkspacePath
+    );
+
+    if (currentFileStillExists) {
+      await openWorkspaceFile(activeWorkspacePath);
+      setStatus('Refreshed workspace');
+    } else {
+      await openWorkspaceFile(workspaceFiles[0].path);
+      setStatus('Current file removed. Opened first file.');
+    }
+  } catch (error) {
+    setStatus(`Failed to refresh workspace: ${error.message}`);
+  }
 }
 
 function scheduleAutoSave() {
