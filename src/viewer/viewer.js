@@ -586,7 +586,10 @@ function toggleTheme() {
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem('markdownChromeTheme', theme);
-  themeToggleButton.textContent = theme === 'dark' ? 'Light' : 'Dark';
+  const icon = themeToggleButton.querySelector('i');
+  if (icon) {
+    icon.className = theme === 'dark' ? 'ti ti-sun' : 'ti ti-moon';
+  }
   themeToggleButton.title = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
 }
 
