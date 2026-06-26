@@ -1,35 +1,35 @@
 :root {
   color-scheme: light;
-  --sidebar-width: 280px;
-  --bg: #f6f7f9;
+  --sidebar-width: 260px;
+  --bg: #f4f5f7;
   --panel: #ffffff;
-  --border: #d8dde6;
+  --border: #d0d7de;
   --text: #1d2430;
-  --muted: #667085;
+  --muted: #7d8590;
   --accent: #1f7a6b;
   --accent-strong: #155e53;
-  --code-bg: #eef2f6;
-  --sidebar-bg: #f9fafb;
-  --editor-bg: #fbfcfd;
-  --toolbar-bg: #fbfcfd;
+  --code-bg: #f0f3f6;
+  --sidebar-bg: #f4f5f7;
+  --editor-bg: #fafbfc;
+  --toolbar-bg: #ffffff;
   --active-bg: #e1f3ef;
   --reveal-bg: rgba(31, 122, 107, 0.72);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #111418;
-  --panel: #181d23;
-  --border: #343c46;
-  --text: #e7edf4;
-  --muted: #a0aab7;
-  --accent: #4fb6a6;
-  --accent-strong: #9ce5da;
-  --code-bg: #252d36;
-  --sidebar-bg: #151a20;
-  --editor-bg: #101419;
-  --toolbar-bg: #171c22;
-  --active-bg: #173d38;
+  --bg: #0f1117;
+  --panel: #161b22;
+  --border: #21262d;
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --accent: #1f7a6b;
+  --accent-strong: #4fb6a6;
+  --code-bg: #21262d;
+  --sidebar-bg: #0d1117;
+  --editor-bg: #0d1117;
+  --toolbar-bg: #161b22;
+  --active-bg: #0d2f2b;
   --reveal-bg: rgba(79, 182, 166, 0.62);
 }
 
@@ -47,40 +47,68 @@ body {
 }
 
 button {
-  height: 34px;
-  border: 1px solid var(--border);
+  height: 28px;
+  border: none;
   border-radius: 6px;
-  padding: 0 12px;
-  background: var(--panel);
-  color: var(--text);
+  padding: 0 10px;
+  background: transparent;
+  color: var(--muted);
   font: inherit;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 button:hover {
-  border-color: var(--accent);
+  background: var(--border);
+  color: var(--text);
 }
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.45;
 }
 
 button.is-active {
-  border-color: var(--accent);
   background: var(--active-bg);
   color: var(--accent-strong);
+}
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 16px;
+}
+
+.icon-btn--accent {
+  color: var(--accent-strong);
+}
+
+.icon-btn--accent:hover {
+  color: var(--accent-strong);
+}
+
+.toolbar-divider {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 2px;
+  flex-shrink: 0;
 }
 
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  height: 56px;
-  padding: 10px 14px;
+  gap: 12px;
+  height: 44px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--border);
-  background: var(--panel);
+  background: var(--toolbar-bg);
 }
 
 .file-meta {
@@ -103,8 +131,8 @@ button.is-active {
 .actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 2px;
+  flex-wrap: nowrap;
   justify-content: flex-end;
 }
 
@@ -118,14 +146,40 @@ button.is-active {
 .autosave-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  color: var(--muted);
-  white-space: nowrap;
+  gap: 0;
+  height: 28px;
+  cursor: pointer;
 }
 
 .autosave-toggle input {
-  accent-color: var(--accent);
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.autosave-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: transparent;
+  user-select: none;
+}
+
+.autosave-toggle:has(input:checked) .autosave-label {
+  color: var(--accent-strong);
+  background: var(--active-bg);
+}
+
+.autosave-toggle:hover .autosave-label {
+  background: var(--border);
+  color: var(--text);
 }
 
 .mode-group .mode-button {
@@ -144,7 +198,7 @@ button.is-active {
 }
 
 .app-layout {
-  height: calc(100vh - 56px);
+  height: calc(100vh - 44px);
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 0;
@@ -173,8 +227,8 @@ button.is-active {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  height: 46px;
-  padding: 8px 10px;
+  height: 40px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -243,10 +297,15 @@ button.is-active {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .file-tree {
-  height: calc(100% - 46px);
+  height: calc(100% - 40px);
   overflow: auto;
   padding: 8px;
 }
@@ -290,6 +349,9 @@ button.is-active {
 .tree-file.is-active {
   background: var(--active-bg);
   color: var(--accent-strong);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 5px 5px 0;
+  padding-left: 4px;
 }
 
 .tree-children {
@@ -312,18 +374,21 @@ button.is-active {
 .markdown-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 42px;
-  padding: 6px 10px;
+  gap: 2px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 8px;
   border-bottom: 1px solid var(--border);
   background: var(--toolbar-bg);
   overflow-x: auto;
 }
 
 .markdown-toolbar button {
-  min-width: 34px;
-  padding: 0 9px;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 6px;
   white-space: nowrap;
+  font-size: 12px;
 }
 
 .workspace {
@@ -472,44 +537,11 @@ button.is-active {
   color: #b42318;
 }
 
-.icon-btn {
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
 .icon-btn i {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1;
 }
 
-.icon-btn--accent {
-  border-color: var(--accent);
-  background: var(--active-bg);
-  color: var(--accent-strong);
-}
-
-.icon-btn--accent:hover {
-  border-color: var(--accent-strong);
-}
-
-.toolbar-divider {
-  display: inline-block;
-  width: 1px;
-  height: 20px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.autosave-label {
-  font-weight: 500;
-  font-size: 12px;
-  text-transform: uppercase;
-}
 
 @media (max-width: 760px) {
   body {
@@ -531,7 +563,7 @@ button.is-active {
   }
 
   .app-layout {
-    height: calc(100vh - 104px);
+    height: calc(100vh - 90px);
     grid-template-columns: minmax(0, 1fr);
   }
 
