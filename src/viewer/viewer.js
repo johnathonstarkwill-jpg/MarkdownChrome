@@ -17,9 +17,11 @@ const statusLabel = document.querySelector('#status');
 const fileNameLabel = document.querySelector('#fileName');
 const appLayout = document.querySelector('#appLayout');
 const workspace = document.querySelector('#workspace');
+const newButton = document.querySelector('#newButton');
 const openButton = document.querySelector('#openButton');
 const openFolderButton = document.querySelector('#openFolderButton');
 const toggleFilesButton = document.querySelector('#toggleFilesButton');
+const refreshButton = document.querySelector('#refreshButton');
 const saveButton = document.querySelector('#saveButton');
 const exportHtmlButton = document.querySelector('#exportHtmlButton');
 const exportPdfButton = document.querySelector('#exportPdfButton');
@@ -90,9 +92,11 @@ function bindEvents() {
     scheduleAutoSave();
   });
 
+  newButton.addEventListener('click', createNewFile);
   openButton.addEventListener('click', openFileWithPicker);
   openFolderButton.addEventListener('click', openFolderWithPicker);
   toggleFilesButton.addEventListener('click', toggleSidebar);
+  refreshButton.addEventListener('click', refreshCurrentSource);
   saveButton.addEventListener('click', () => saveToWritableFile());
   exportHtmlButton.addEventListener('click', exportHtml);
   exportPdfButton.addEventListener('click', exportPdf);
@@ -109,6 +113,10 @@ function bindEvents() {
   });
 
   window.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'n') {
+      event.preventDefault();
+      createNewFile();
+    }
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
       saveToWritableFile();
@@ -181,6 +189,19 @@ async function openFolderWithPicker() {
       setStatus(`Open folder failed: ${error.message}`);
     }
   }
+}
+
+function createNewFile() {
+  fileHandle = null;
+  clearWorkspaceFiles();
+  fileNameLabel.textContent = 'Untitled.md';
+  editor.value = '# Untitled\n\n';
+  renderNow();
+  setStatus('Created new file. Use Save to choose a file location.');
+}
+
+function refreshCurrentSource() {
+  setStatus('Refresh not yet implemented.');
 }
 
 function scheduleAutoSave() {

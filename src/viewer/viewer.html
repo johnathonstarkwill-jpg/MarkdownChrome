@@ -6,6 +6,7 @@
     <title>Markdown Chrome</title>
     <link rel="stylesheet" href="../../vendor/katex.min.css">
     <link rel="stylesheet" href="./viewer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
   </head>
   <body>
     <header class="toolbar">
@@ -14,16 +15,38 @@
         <span id="status">Ready</span>
       </div>
       <div class="actions">
-        <button id="openButton" type="button" title="Open Markdown file">Open</button>
-        <button id="openFolderButton" type="button" title="Open folder with Markdown files">Open Folder</button>
-        <button id="toggleFilesButton" type="button" title="Show or hide file tree">Files</button>
-        <button id="saveButton" type="button" title="Save to writable file">Save</button>
-        <button id="exportHtmlButton" type="button" title="Export rendered Markdown as HTML">HTML</button>
-        <button id="exportPdfButton" type="button" title="Export rendered Markdown as PDF through print dialog">PDF</button>
-        <button id="themeToggleButton" type="button" title="Switch light or dark theme">Dark</button>
-        <label class="autosave-toggle">
-          <input id="autosaveToggle" type="checkbox" checked>
-          Auto-save
+        <button id="newButton" type="button" title="New file (Cmd+N)" class="icon-btn icon-btn--accent" aria-label="New file">
+          <i class="ti ti-file-plus" aria-hidden="true"></i>
+        </button>
+        <button id="openButton" type="button" title="Open Markdown file" class="icon-btn" aria-label="Open file">
+          <i class="ti ti-folder-open" aria-hidden="true"></i>
+        </button>
+        <button id="openFolderButton" type="button" title="Open folder with Markdown files" class="icon-btn" aria-label="Open folder">
+          <i class="ti ti-folders" aria-hidden="true"></i>
+        </button>
+        <button id="toggleFilesButton" type="button" title="Show or hide file tree" class="icon-btn" aria-label="Toggle file tree">
+          <i class="ti ti-layout-sidebar" aria-hidden="true"></i>
+        </button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button id="refreshButton" type="button" title="Refresh current file or folder" class="icon-btn" aria-label="Refresh">
+          <i class="ti ti-refresh" aria-hidden="true"></i>
+        </button>
+        <button id="saveButton" type="button" title="Save to writable file" class="icon-btn" aria-label="Save">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i>
+        </button>
+        <button id="exportHtmlButton" type="button" title="Export rendered Markdown as HTML" class="icon-btn" aria-label="Export HTML">
+          <i class="ti ti-brand-html5" aria-hidden="true"></i>
+        </button>
+        <button id="exportPdfButton" type="button" title="Export rendered Markdown as PDF through print dialog" class="icon-btn" aria-label="Export PDF">
+          <i class="ti ti-file-type-pdf" aria-hidden="true"></i>
+        </button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button id="themeToggleButton" type="button" title="Switch light or dark theme" class="icon-btn" aria-label="Toggle theme">
+          <i class="ti ti-moon" aria-hidden="true"></i>
+        </button>
+        <label class="autosave-toggle" title="Auto-save">
+          <input id="autosaveToggle" type="checkbox" checked aria-label="Auto-save">
+          <span class="autosave-label">AS</span>
         </label>
         <div class="mode-group" aria-label="View mode">
           <button class="mode-button is-active" type="button" data-mode="split">Split</button>
