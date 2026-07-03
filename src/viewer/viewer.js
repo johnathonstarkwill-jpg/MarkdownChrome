@@ -718,10 +718,12 @@ function renderBeautifulMermaidBlock(node) {
   }
 
   try {
+    const style = getComputedStyle(document.documentElement);
+    const resolve = (v) => style.getPropertyValue(v).trim() || undefined;
     node.innerHTML = window.BeautifulMermaid.renderMermaidSVG(source, {
-      bg: 'var(--panel)',
-      fg: 'var(--text)',
-      accent: 'var(--accent)',
+      bg: resolve('--panel'),
+      fg: resolve('--text'),
+      accent: resolve('--accent'),
       transparent: true,
     });
     node.classList.add('mermaid-beautiful');
