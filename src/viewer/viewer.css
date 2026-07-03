@@ -205,6 +205,22 @@ button.is-active {
   position: relative;
 }
 
+.app-layout.is-drag-over::after {
+  content: "Drop Markdown file or folder to open";
+  position: absolute;
+  inset: 14px;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 84%, transparent);
+  color: var(--accent-strong);
+  font-size: 18px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
 .sidebar-collapsed {
   grid-template-columns: 0 minmax(0, 1fr);
 }

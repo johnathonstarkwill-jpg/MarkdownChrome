@@ -5,6 +5,7 @@ Markdown Chrome is a Chrome Manifest V3 extension for opening, previewing, editi
 ## Features
 
 - Open `.md` and `.markdown` files from Chrome or through the extension toolbar.
+- Drag a Markdown file or folder into the viewer to open it.
 - Open a folder and browse Markdown files in a collapsible, resizable file tree.
 - Use split view, fullscreen preview, or fullscreen editor mode.
 - Edit Markdown with a beginner-friendly formatting toolbar.
@@ -14,6 +15,7 @@ Markdown Chrome is a Chrome Manifest V3 extension for opening, previewing, editi
 - Click task-list checkboxes directly in the rendered preview; the source Markdown updates from `- [ ]` to `- [x]` or back.
 - Render Mermaid diagrams from fenced code blocks.
 - Save and auto-save through Chrome's File System Access API after the user grants write access.
+- Refresh the current file or folder from disk on demand.
 - Export rendered Markdown as standalone HTML.
 - Export PDF through Chrome's print dialog.
 - Switch between light and dark themes.
@@ -34,7 +36,9 @@ You can also click the Markdown Chrome toolbar icon from any page to open the vi
 
 - `Open`: choose a Markdown file without typing a local file URL.
 - `Open Folder`: choose a folder and browse all Markdown files in a file tree.
+- Drag and drop: drop a `.md` / `.markdown` file or a folder anywhere in the viewer to open it.
 - `Files`: show or hide the folder tree.
+- `Refresh`: reload the current file or refresh the open folder tree from disk.
 - `Split`: editor and rendered preview side by side.
 - `Preview`: rendered Markdown fullscreen.
 - `Editor`: Markdown editor fullscreen.
@@ -69,6 +73,12 @@ graph TD
 
 Use the same fenced block syntax in your own files: start a code block with three backticks followed by `mermaid`.
 
+Markdown Chrome uses a compatible Mermaid rendering pipeline:
+
+- Supported diagram types such as flowcharts, sequence diagrams, class diagrams, ER diagrams, state diagrams, and XY charts render first through `beautiful-mermaid` for cleaner SVG output.
+- Unsupported diagram types, or diagrams that fail in `beautiful-mermaid`, automatically fall back to the official Mermaid renderer.
+- All renderers are vendored locally so the extension does not need remote code to preview diagrams.
+
 ## LaTeX Formulas
 
 Markdown Chrome renders inline and display math with KaTeX:
@@ -88,6 +98,8 @@ Formula text inside code blocks is left unchanged.
 Chrome extensions cannot silently write to arbitrary `file://` paths. The first time you save, Chrome asks you to choose the source file so the extension can receive a writable file handle. After that, `Save` writes immediately and `Auto-save` keeps later edits synchronized while the page remains open.
 
 Folder mode uses Chrome's directory picker. Markdown files opened from that folder can be saved through their file handles after the user grants folder access.
+
+Use `Refresh` to reload the current file or folder from disk after external edits or folder changes. If the editor has unsaved local edits, Markdown Chrome asks whether to keep the current edits or discard them and load the disk version.
 
 ## Privacy Model
 

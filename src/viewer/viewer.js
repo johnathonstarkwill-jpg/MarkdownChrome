@@ -10,6 +10,7 @@ import { buildExportHtml, defaultExportName, downloadHtmlDocument, printHtmlDocu
 import { applyMarkdownAction, MARKDOWN_ACTIONS } from './markdown-actions.js';
 import { renderCitationMarkers } from './citations.js';
 import { toggleMarkdownTaskAtIndex } from './task-list.js';
+import { isMissingFileError } from './file-refresh.js';
 
 const editor = document.querySelector('#editor');
 const preview = document.querySelector('#preview');
@@ -116,6 +117,9 @@ function bindEvents() {
   markdownToolbar.addEventListener('click', applyToolbarAction);
   fileTree.addEventListener('click', handleFileTreeClick);
   preview.addEventListener('change', handlePreviewTaskToggle);
+  document.addEventListener('dragover', handleMarkdownDragOver);
+  document.addEventListener('dragleave', handleMarkdownDragLeave);
+  document.addEventListener('drop', handleMarkdownDrop);
 
   modeButtons.forEach((button) => {
     button.addEventListener('click', () => setMode(button.dataset.mode));
@@ -258,8 +262,9 @@ async function refreshCurrentSource() {
     }
 
     if (fileHandle) {
-      await refreshFileHandleSource();
-      setStatus('Refreshed file');
+      if (await refreshFileHandleSource()) {
+        setStatus('Refreshed file');
+      }
       return;
     }
 
@@ -277,16 +282,24 @@ async function refreshCurrentSource() {
 
 async function refreshFileHandleSource() {
   if (!fileHandle) {
-    return;
+    return false;
   }
 
   try {
-    const updatedText = await readFileHandleText(fileHandle);
-    editor.value = updatedText;
+    const file = await fileHandle.getFile();
+    editor.value = await file.text();
+    fileNameLabel.textContent = file.name || fileHandle.name || fileNameLabel.textContent;
     hasUnsavedChanges = false;
     renderNow();
+    return true;
   } catch (error) {
+    if (isMissingFileError(error)) {
+      handleSourceReadError(error);
+      return false;
+    }
+
     setStatus(`Failed to refresh file: ${error.message}`);
+    return false;
   }
 }
 
@@ -349,7 +362,11 @@ function applyToolbarAction(event) {
 async function handleFileTreeClick(event) {
   const fileButton = event.target.closest('[data-file-path]');
   if (fileButton) {
-    await openWorkspaceFile(fileButton.dataset.filePath);
+    try {
+      await openWorkspaceFile(fileButton.dataset.filePath);
+    } catch (error) {
+      handleSourceReadError(error);
+    }
     return;
   }
 
@@ -457,7 +474,142 @@ function exportStyles() {
 
 function replaceEditorContent(newContent) {
   editor.value = newContent;
+  hasUnsavedChanges = false;
   renderNow();
+}
+
+function handleMarkdownDragOver(event) {
+  if (!event.dataTransfer || !hasMarkdownDragItem(event.dataTransfer)) {
+    return;
+  }
+
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'copy';
+  appLayout.classList.add('is-drag-over');
+}
+
+function handleMarkdownDragLeave(event) {
+  if (event.relatedTarget && appLayout.contains(event.relatedTarget)) {
+    return;
+  }
+
+  appLayout.classList.remove('is-drag-over');
+}
+
+async function handleMarkdownDrop(event) {
+  if (!event.dataTransfer) {
+    return;
+  }
+
+  event.preventDefault();
+  appLayout.classList.remove('is-drag-over');
+
+  if (hasUnsavedChanges && !confirmDiscardLocalChanges()) {
+    return;
+  }
+
+  try {
+    const droppedEntry = await getDroppedMarkdownEntry(event.dataTransfer);
+    if (!droppedEntry) {
+      setStatus('Drop a Markdown file or folder to open it.');
+      return;
+    }
+
+    if (droppedEntry.directoryHandle) {
+      workspaceDirectoryHandle = droppedEntry.directoryHandle;
+      workspaceFiles = await collectMarkdownFileHandles(droppedEntry.directoryHandle);
+      activeWorkspacePath = '';
+      folderNameLabel.textContent = droppedEntry.directoryHandle.name || 'Folder';
+      setSidebarCollapsed(false);
+      renderFileTree();
+
+      if (workspaceFiles.length === 0) {
+        fileHandle = null;
+        setStatus('No Markdown files found in this folder.');
+        return;
+      }
+
+      await openWorkspaceFile(workspaceFiles[0].path);
+      setStatus('Loaded dropped folder workspace');
+      return;
+    }
+
+    clearWorkspaceFiles();
+    sourceUrl = '';
+    sourceTextSnapshot = '';
+
+    if (droppedEntry.handle) {
+      fileHandle = droppedEntry.handle;
+      const file = await droppedEntry.handle.getFile();
+      fileNameLabel.textContent = file.name;
+      replaceEditorContent(await file.text());
+      setStatus('Loaded dropped file with write access');
+      return;
+    }
+
+    fileHandle = null;
+    fileNameLabel.textContent = droppedEntry.file.name;
+    replaceEditorContent(await droppedEntry.file.text());
+    setStatus('Loaded dropped file. Use Save to choose a writable file.');
+  } catch (error) {
+    handleSourceReadError(error);
+  }
+}
+
+function hasMarkdownDragItem(dataTransfer) {
+  const files = Array.from(dataTransfer.files || []);
+  if (files.some((file) => isMarkdownFileName(file.name))) {
+    return true;
+  }
+
+  return Array.from(dataTransfer.items || []).some(
+    (item) => item.kind === 'file' && (!item.type || item.type === 'text/markdown' || item.type === 'text/plain'),
+  );
+}
+
+async function getDroppedMarkdownEntry(dataTransfer) {
+  for (const item of Array.from(dataTransfer.items || [])) {
+    if (item.kind !== 'file') {
+      continue;
+    }
+
+    const handle = await getDataTransferFileHandle(item);
+    if (handle?.kind === 'directory') {
+      return { directoryHandle: handle };
+    }
+
+    const file = item.getAsFile();
+    if (file && isMarkdownFileName(file.name)) {
+      return { file, handle: handle?.kind === 'file' ? handle : null };
+    }
+  }
+
+  const file = Array.from(dataTransfer.files || []).find((entry) => isMarkdownFileName(entry.name));
+  return file ? { file, handle: null } : null;
+}
+
+async function getDataTransferFileHandle(item) {
+  if (!item.getAsFileSystemHandle) {
+    return null;
+  }
+
+  const handle = await item.getAsFileSystemHandle();
+  return handle && ['file', 'directory'].includes(handle.kind) ? handle : null;
+}
+
+function isMarkdownFileName(name) {
+  return /\.(md|markdown)$/i.test(name || '');
+}
+
+function handleSourceReadError(error) {
+  if (isMissingFileError(error)) {
+    fileHandle = null;
+    sourceUrl = '';
+    setStatus('Source file or folder was moved or deleted. Click Refresh, Open, or drop it again.');
+    return;
+  }
+
+  setStatus(`Open failed: ${error.message}`);
 }
 
 function renderNow() {
@@ -517,29 +669,81 @@ function prepareMermaidBlocks() {
     const container = document.createElement('div');
     container.className = 'mermaid';
     container.id = `mermaid-${Date.now()}-${index}`;
+    container.dataset.mermaidSource = block.textContent;
     container.textContent = block.textContent;
     block.closest('pre').replaceWith(container);
   });
 }
 
 async function renderMermaidBlocks() {
-  if (!window.mermaid) {
+  const blocks = Array.from(preview.querySelectorAll('.mermaid'));
+  if (blocks.length === 0) {
     return;
   }
 
   window.clearTimeout(mermaidTimer);
   mermaidTimer = window.setTimeout(async () => {
+    const officialNodes = [];
+
+    blocks.forEach((node) => {
+      if (renderBeautifulMermaidBlock(node)) {
+        return;
+      }
+
+      node.textContent = node.dataset.mermaidSource || node.textContent;
+      officialNodes.push(node);
+    });
+
+    if (!window.mermaid || officialNodes.length === 0) {
+      return;
+    }
+
     try {
-      await window.mermaid.run({ nodes: preview.querySelectorAll('.mermaid') });
+      await window.mermaid.run({ nodes: officialNodes });
     } catch (error) {
-      preview.querySelectorAll('.mermaid').forEach((node) => {
-        if (!node.dataset.rendered) {
+      officialNodes.forEach((node) => {
+        if (!node.dataset.processed) {
           node.classList.add('mermaid-error');
         }
       });
       setStatus(`Mermaid render error: ${error.message}`);
     }
   }, 0);
+}
+
+function renderBeautifulMermaidBlock(node) {
+  const source = node.dataset.mermaidSource || node.textContent;
+  if (!isBeautifulMermaidSupported(source) || !window.BeautifulMermaid?.renderMermaidSVG) {
+    return false;
+  }
+
+  try {
+    node.innerHTML = window.BeautifulMermaid.renderMermaidSVG(source, {
+      bg: 'var(--panel)',
+      fg: 'var(--text)',
+      accent: 'var(--accent)',
+      transparent: true,
+    });
+    node.classList.add('mermaid-beautiful');
+    node.dataset.renderer = 'beautiful-mermaid';
+    return true;
+  } catch (error) {
+    console.warn('[beautiful-mermaid] render failed, falling back to mermaid.js:', error);
+    node.classList.remove('mermaid-beautiful');
+    delete node.dataset.renderer;
+    return false;
+  }
+}
+
+function isBeautifulMermaidSupported(source) {
+  const firstLine = source.trim().split(/[\n;]/)[0]?.trim().toLowerCase() || '';
+
+  return /^(graph|flowchart)\b/.test(firstLine)
+    || /^statediagram-v2\b/.test(firstLine)
+    || /^sequencediagram\b/.test(firstLine)
+    || /^classdiagram\b/.test(firstLine)
+    || /^erdiagram\b/.test(firstLine)
+    || /^xychart(-beta)?\b/.test(firstLine);
 }
 
 function renderFileTree() {

@@ -9,6 +9,7 @@ const requiredFiles = [
   'src/viewer/export.js',
   'src/viewer/citations.js',
   'src/viewer/file-access.js',
+  'src/viewer/file-refresh.js',
   'src/viewer/markdown-actions.js',
   'src/viewer/viewer.html',
   'src/viewer/viewer.css',
@@ -17,6 +18,7 @@ const requiredFiles = [
   'vendor/katex.min.css',
   'vendor/katex.min.js',
   'vendor/auto-render.min.js',
+  'vendor/beautiful-mermaid.min.js',
   'vendor/mermaid.min.js',
 ];
 
@@ -38,10 +40,12 @@ assert.match(html, /vendor\/marked\.min\.js/);
 assert.match(html, /vendor\/katex\.min\.css/);
 assert.match(html, /vendor\/katex\.min\.js/);
 assert.match(html, /vendor\/auto-render\.min\.js/);
+assert.match(html, /vendor\/beautiful-mermaid\.min\.js/);
 assert.match(html, /vendor\/mermaid\.min\.js/);
 assert.match(html, /type="module" src="\.\/viewer\.js"/);
 assert.match(html, /openFolderButton/);
 assert.match(html, /toggleFilesButton/);
+assert.match(html, /refreshButton/);
 assert.match(html, /revealSidebarButton/);
 assert.match(html, /sidebarResizeHandle/);
 assert.match(html, /themeToggleButton/);
@@ -58,8 +62,11 @@ assert.match(viewerJs, /showDirectoryPicker/);
 assert.match(viewerJs, /writeTextToHandle/);
 assert.match(viewerJs, /scheduleAutoSave/);
 assert.match(viewerJs, /mermaid\.run/);
+assert.match(viewerJs, /BeautifulMermaid/);
+assert.match(viewerJs, /isBeautifulMermaidSupported/);
 assert.match(viewerJs, /renderMathInElement/);
 assert.match(viewerJs, /renderCitationMarkers/);
+assert.match(viewerJs, /refreshCurrentSource/);
 assert.match(viewerJs, /downloadHtmlDocument/);
 assert.match(viewerJs, /printHtmlDocument/);
 assert.match(viewerJs, /setTheme/);
