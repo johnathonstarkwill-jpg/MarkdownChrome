@@ -562,9 +562,7 @@ function hasMarkdownDragItem(dataTransfer) {
     return true;
   }
 
-  return Array.from(dataTransfer.items || []).some(
-    (item) => item.kind === 'file' && (!item.type || item.type === 'text/markdown' || item.type === 'text/plain'),
-  );
+  return Array.from(dataTransfer.items || []).some((item) => item.kind === 'file');
 }
 
 async function getDroppedMarkdownEntry(dataTransfer) {
