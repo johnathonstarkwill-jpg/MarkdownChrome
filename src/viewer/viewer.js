@@ -571,12 +571,15 @@ async function getDroppedMarkdownEntry(dataTransfer) {
       continue;
     }
 
+    // getAsFile() must be called synchronously before any await — the drag
+    // data store becomes inactive after yielding, making getAsFile() return null.
+    const file = item.getAsFile();
     const handle = await getDataTransferFileHandle(item);
+
     if (handle?.kind === 'directory') {
       return { directoryHandle: handle };
     }
 
-    const file = item.getAsFile();
     if (file && isMarkdownFileName(file.name)) {
       return { file, handle: handle?.kind === 'file' ? handle : null };
     }
